@@ -113,10 +113,16 @@ async def check_bearer_token(authorization: str = Header(...)):
         jwt_fields = jwt.decode(
             token, config.NEXTAUTH_SECRET, algorithms=["HS256"])
 
-        if jwt_fields["issuer"] != config.NEXTAUTH_URL:
+        allowed_issuers = [
+            config.NEXTAUTH_URL,
+            "http://0.0.0.0:8000",
+            "https://web-production-f930c.up.railway.app"
+        ]
+
+        if jwt_fields["issuer"] not in allowed_issuers:
             raise HTTPException(
                 status_code=401,
-                detail="Unauthorized",
+                detail="Unauthorized issuer",
             )
     except Exception:
         raise HTTPException(
