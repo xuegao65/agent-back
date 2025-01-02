@@ -49,7 +49,7 @@ def fetch_and_store_tokens():
     solana_actions.fetch_and_store_tokens()
 
 
-### Uncomment the following lines to enable Twitter API
+# Uncomment the following lines to enable Twitter API
 # bearer_token = config.TWITTER_BEARER_TOKEN
 # consumer_key = config.TWITTER_CONSUMER_KEY
 # consumer_secret = config.TWITTER_CONSUMER_SECRET
@@ -67,8 +67,8 @@ def fetch_and_store_tokens():
 async def lifespan(app: FastAPI):
     try:
         if not broker.is_worker_process:
-        
-            ### Uncomment the following line to enable Twitter API
+
+            # Uncomment the following line to enable Twitter API
             # asyncio.create_task(x_bot.run())
             ###
 
@@ -94,6 +94,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         config.NEXTAUTH_URL,
+        "https://sol-ai-agent.com",
+        "https://www.sol-ai-agent.com",
     ],
     allow_credentials=True,
     allow_methods=["POST", "GET", "PUT", "DELETE"],
@@ -108,7 +110,8 @@ async def check_bearer_token(authorization: str = Header(...)):
     token = authorization.split("Bearer ")[1]
 
     try:
-        jwt_fields = jwt.decode(token, config.NEXTAUTH_SECRET, algorithms=["HS256"])
+        jwt_fields = jwt.decode(
+            token, config.NEXTAUTH_SECRET, algorithms=["HS256"])
 
         if jwt_fields["issuer"] != config.NEXTAUTH_URL:
             raise HTTPException(
@@ -233,7 +236,8 @@ async def sse_endpoint(user_id: str, conversation_id: str, request: Request):
                 user_id, conversation["last_message"]
             ):
                 await queue.put({"event": "message", "data": text})
-                await asyncio.sleep(0.1)  # Small delay to ensure chunked response
+                # Small delay to ensure chunked response
+                await asyncio.sleep(0.1)
 
             # Send a close event
             await queue.put({"event": "close", "data": ""})
